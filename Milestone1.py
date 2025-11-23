@@ -12,23 +12,6 @@ def f(U):
     return array([u, v, dudt, dvdt])
 
 
-def Jf(U):
-    ''' Retorna la matriz Jacobiana de U '''
-    x, y, u, v = U
-    r2 = x*x + y*y
-    r  = sqrt(r2)
-    r3 = r2*r
-    r5 = r2*r3
-    dx_x = -1.0/r3 + 3.0*x*x/r5
-    dx_y =  3.0*x*y/r5
-    dy_x =  3.0*x*y/r5
-    dy_y = -1.0/r3 + 3.0*y*y/r5
-    
-    return array([[0.0, 0.0, 1.0, 0.0],
-                  [0.0, 0.0, 0.0, 1.0],
-                  [dx_x, dx_y, 0.0, 0.0],
-                  [dy_x, dy_y, 0.0, 0.0]])
-
 #### Variables iniciales ####
 
 x0 = 1
@@ -106,25 +89,62 @@ plt.show()
 #### Crank-Nicolson ####
 ########################
 
+U_cn = zeros([N+1, len(U0)])
+U_cn[0,:] = U0
+
+max_iter = 8
+tol = 1e-12
+
+
+for n in range(N):
+
+    U_old = U_cn[n,:] + delta_t * f(U_cn[n,:]) # Paso inicial con Euler 
+
+    # iteraciones implícitas
+    for k in range(max_iter):
+
+        U_prev = U_old.copy()
+
+        F_n = f(U_cn[n,:])
+        F_old = f(U_old)
+
+        # fórmula implícita
+        U_old = U_cn[n,:] + 0.5*delta_t*(F_n + F_old)
+
+        # convergencia
+        if sqrt(((U_old - U_prev)**2).sum()) < tol:
+            break
+
+    U_cn[n+1,:] = U_old
+ 
+
+# GRAFICA CN #
+
+plt.figure(figsize=(7,4))
+plt.plot(U_cn[:,0], U_cn[:,1])
+plt.axis('equal')  
+plt.title('CRANK-NICOLSON')
+plt.show()
 
 
 
-
-
-
-
-#### Grafica comparativa ####
+### Gráfica comparativa ####
 
 fig, ax = plt.subplots(figsize=(7,4))
+
 ax.plot(U_Euler[:,0], U_Euler[:,1], label='Euler Explícito')
-ax.plot(U_RK4[:,0], U_RK4[:,1], label='Runge–Kutta 4')
+ax.plot(U_RK4[:,0],   U_RK4[:,1],   label='Runge–Kutta 4')
+ax.plot(U_cn[:,0],    U_cn[:,1],    label='Crank–Nicolson')   # <-- AÑADIDO
+
 ax.set_aspect('equal', adjustable='box')
 ax.grid(True, linestyle='--', alpha=0.4)
-ax.set_title('Euler vs RK4')
+ax.set_title('Comparación: Euler vs RK4 vs Crank–Nicolson')
 ax.set_xlabel('x'); ax.set_ylabel('y')
 ax.legend()
+
 fig.tight_layout()
 plt.show()
+
 
 
 
