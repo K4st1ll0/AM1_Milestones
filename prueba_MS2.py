@@ -1,4 +1,4 @@
-from Milestone2 import Euler, f, RK4, CrankNicolson
+from Milestone2 import CrankNicolson_step, Euler, Euler_step, Euler_step, f, RK4, RK4_step, CrankNicolson, inverse_euler
 from numpy import array
 from matplotlib import pyplot as plt
 
@@ -20,11 +20,11 @@ U0 = array([x0, y0, u0, v0])
 
 U_Euler = Euler(f, U0, tf, t0, N)
 
-plt.figure(figsize=(7,4))
-plt.plot(U_Euler[:,0], U_Euler[:,1])
-plt.axis('equal')  
-plt.title('Euler Explícito')
-plt.show()
+# plt.figure(figsize=(7,4))
+# plt.plot(U_Euler[:,0], U_Euler[:,1])
+# plt.axis('equal')  
+# plt.title('Euler Explícito')
+# plt.show()
 
 # Prueba función RK4
 
@@ -40,8 +40,30 @@ plt.show()
 
 U_cn = CrankNicolson(f, U0, tf, t0, N)
 
+# plt.figure(figsize=(7,4))
+# plt.plot(U_cn[:,0], U_cn[:,1])
+# plt.axis('equal')  
+# plt.title('Crank-Nicolson')
+# plt.show()
+
+# Prueba función Inverse Euler
+
+U_ie = inverse_euler(f, U0, tf, t0, N)
+
+# plt.figure(figsize=(7,4))
+# plt.plot(U_ie[:,0], U_ie[:,1]) 
+# plt.axis('equal')  
+# plt.title('Inverse Euler')
+# plt.show()
+
+    
+# Prueba integrate
+
+from Milestone2 import integrate
+U_int = integrate(f, U0, t0, tf, N, method=CrankNicolson_step)
+
 plt.figure(figsize=(7,4))
-plt.plot(U_cn[:,0], U_cn[:,1])
+plt.plot(U_int[:,0], U_int[:,1])  
 plt.axis('equal')  
-plt.title('Crank-Nicolson')
+plt.title('Integrate ')
 plt.show()
