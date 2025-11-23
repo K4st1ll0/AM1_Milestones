@@ -134,7 +134,7 @@ fig, ax = plt.subplots(figsize=(7,4))
 
 ax.plot(U_Euler[:,0], U_Euler[:,1], label='Euler Explícito')
 ax.plot(U_RK4[:,0],   U_RK4[:,1],   label='Runge–Kutta 4')
-ax.plot(U_cn[:,0],    U_cn[:,1],    label='Crank–Nicolson')   # <-- AÑADIDO
+ax.plot(U_cn[:,0],    U_cn[:,1],    label='Crank–Nicolson')   
 
 ax.set_aspect('equal', adjustable='box')
 ax.grid(True, linestyle='--', alpha=0.4)
@@ -144,6 +144,7 @@ ax.legend()
 
 fig.tight_layout()
 plt.show()
+
 
 
 
