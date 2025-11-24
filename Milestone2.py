@@ -296,67 +296,71 @@ def integrate(f, U0, t0, tf, N, method):
 #########################   Test funciones   ##############################
 ###########################################################################
 
-#### Variables iniciales ####
+if __name__ == "__main__":
 
-x0 = 1
-y0 = 0
-u0 = 0 
-v0 = 1
+    #### Variables iniciales ####
 
-N = 10000
+    x0 = 1
+    y0 = 0
+    u0 = 0 
+    v0 = 1
 
-t0 = 0
-tf = 20
+    N = 10000
 
-U0 = array([x0, y0, u0, v0])
+    t0 = 0
+    tf = 20
 
-# Prueba función Euler
+    U0 = array([x0, y0, u0, v0])
 
-U_Euler = Euler(f, U0, tf, t0, N)
+    # Prueba función Euler
 
-plt.figure(figsize=(7,4))
-plt.plot(U_Euler[:,0], U_Euler[:,1])
-plt.axis('equal')  
-plt.title('Euler Explícito')
-plt.show()
+    U_Euler = Euler(f, U0, tf, t0, N)
 
-# Prueba función RK4
+    plt.figure(figsize=(7,4))
+    plt.plot(U_Euler[:,0], U_Euler[:,1])
+    plt.axis('equal')  
+    plt.title('Euler Explícito')
+    plt.show()
 
-U_RK4 = RK4(f, U0, tf, t0, N)
+    # Prueba función RK4
 
-plt.figure(figsize=(7,4))
-plt.plot(U_RK4[:,0], U_RK4[:,1])
-plt.axis('equal')  
-plt.title('RUNGE-KUTTA 4')
-plt.show()
+    U_RK4 = RK4(f, U0, tf, t0, N)
 
-# Prueba función Crank-Nicolson
+    plt.figure(figsize=(7,4))
+    plt.plot(U_RK4[:,0], U_RK4[:,1])
+    plt.axis('equal')  
+    plt.title('RUNGE-KUTTA 4')
+    plt.show()
 
-U_cn = CrankNicolson(f, U0, tf, t0, N)
+    # Prueba función Crank-Nicolson
 
-plt.figure(figsize=(7,4))
-plt.plot(U_cn[:,0], U_cn[:,1])
-plt.axis('equal')  
-plt.title('Crank-Nicolson')
-plt.show()
+    U_cn = CrankNicolson(f, U0, tf, t0, N)
 
-# Prueba función Inverse Euler
+    plt.figure(figsize=(7,4))
+    plt.plot(U_cn[:,0], U_cn[:,1])
+    plt.axis('equal')  
+    plt.title('Crank-Nicolson')
+    plt.show()
 
-U_ie = inverse_euler(f, U0, tf, t0, N)
+    # Prueba función Inverse Euler
 
-plt.figure(figsize=(7,4))
-plt.plot(U_ie[:,0], U_ie[:,1]) 
-plt.axis('equal')  
-plt.title('Inverse Euler')
-plt.show()
+    U_ie = inverse_euler(f, U0, tf, t0, N)
 
+    plt.figure(figsize=(7,4))
+    plt.plot(U_ie[:,0], U_ie[:,1]) 
+    plt.axis('equal')  
+    plt.title('Inverse Euler')
+    plt.show()
+
+        
+    # Prueba integrate
+
+    U_int = integrate(f, U0, t0, tf, N, method=CrankNicolson_step) # Cambiar método aquí
+
+    plt.figure(figsize=(7,4))
+    plt.plot(U_int[:,0], U_int[:,1])  
+    plt.axis('equal')  
+    plt.title('Integrate ')
+    plt.show()
     
-# Prueba integrate
-
-U_int = integrate(f, U0, t0, tf, N, method=CrankNicolson_step) # Cambiar método aquí
-
-plt.figure(figsize=(7,4))
-plt.plot(U_int[:,0], U_int[:,1])  
-plt.axis('equal')  
-plt.title('Integrate ')
-plt.show()
+    pass
