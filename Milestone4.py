@@ -1,29 +1,85 @@
+from numpy import array
+from Milestone2 import *
+import matplotlib.pyplot as plt
 
-def Cauchy_Error(F, U0, t, temporal_scheme, q):
+def F(U):
+    x = U[0]
+    v = U[1]
+    return array([v, -x])
 
-    E = zeros((N+1, Nv))
-    t1 = t[:]
-    t2 = linspace(t[0], t[N], 2*N+1)
+import numpy as np
 
-    U1 = Cauchy_problem(F, U0, t1, temporal_scheme)
-    U2 = Cauchy_problem(F, U0, t2, temporal_scheme)
+def LeapFrog_step(f, U, dt):
+    x = U[0]
+    v = U[1]
 
-    for n in range(0,N+1): 
-        E[n,:] = (U2[2*n,:]-U1[n,:])/ (1-1/2**q)
-    return U1, E
+    a = f(U)[1]   
 
-def comvergence_rate(temporal_scheme, F = oscilador, U0=U0, t=t)
-    N_meshes  = 5
-    N_mesh = array([10, 20, 40, 60, 80])
-    E = zeros(N_meshes)
-    logN = log(N_mesh)
-    logE = zeros(N_meshes)
-    N = len(t)
-    for n in range(N_meshes):
-        t_n = linspace(t[0], t[N], N_mesh[n])
-        U1, E[n] = Cauchy_Error(F, U0, t_n, temporal_scheme, q)
+    v_half = v + 0.5*dt*a
+
+    x_new = x + dt*v_half
+
+    U_temp = np.array([x_new, v_half])
+    a_new = f(U_temp)[1]
+
+    v_new = v_half + 0.5*dt*a_new
+
+    return np.array([x_new, v_new])
+
+
+# Condiciones iniciales
+U0 = array([1, 0])
+t0 = 0
+tf = 10
+N = 1000
+
+oscilador_eu = integrate(F, U0, t0, tf, N, method=Euler_step)
+oscilador_ieu = integrate(F, U0, t0, tf, N, method=inverse_euler_step)
+oscilador_rk = integrate(F, U0, t0, tf, N, method=RK4_step)
+oscilador_cn = integrate(F, U0, t0, tf, N, method=CrankNicolson_step)
+oscilador_lf = integrate(F, U0, t0, tf, N, method=LeapFrog_step)
+
+# Regiones de estabilidad
+
+# Malla en el plano complejo
+x = np.linspace(-3, 3, 800)
+y = np.linspace(-3, 3, 800)
+X, Y = np.meshgrid(x, y)
+Z = X + 1j*Y
+
+
+R_eu = 1 + Z
+R_ieu = 1 / (1 - Z)
+R_rk = 1 + Z + (Z**2)/2 + (Z**3)/6 + (Z**4)/24
+R_cn = (1 + Z/2) / (1 - Z/2)
+R_lf = Z
+
+def plot_region(R, title, limit=1):
+    plt.figure(figsize=(6,6))
     
-    logN = log(N_mesh)
-    logE = log(E)
+    mask = np.abs(R) <= limit
 
+    # Pintamos la región estable en azul claro
+    plt.imshow(mask.astype(int),
+               extent=[x.min(), x.max(), y.min(), y.max()],
+               origin='lower',
+               cmap='Blues',
+               alpha=0.8)
+
+    # Ejes
+    plt.axhline(0, color='k', linewidth=1)
+    plt.axvline(0, color='k', linewidth=1)
+
+    plt.title(title)
+    plt.xlabel("Re(z)")
+    plt.ylabel("Im(z)")
+    plt.gca().set_aspect("equal")
+    plt.show()
+
+
+plot_region(R_eu,  "Región de estabilidad — Euler explícito")
+plot_region(R_ieu, "Región de estabilidad — Euler inverso")
+plot_region(R_cn,  "Región de estabilidad — Crank–Nicolson")
+plot_region(R_rk,  "Región de estabilidad — RK4")
+plot_region(R_lf,  "Región de estabilidad — Leap–Frog", limit=2)
 
