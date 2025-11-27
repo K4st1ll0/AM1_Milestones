@@ -106,3 +106,38 @@ if __name__ == "__main__":
     print(f"Convergence rate Crank-Nicolson: {rate_cn}")
     print(f"Convergence rate Inverse Euler: {rate_ie}")
 
+
+    N_values = np.array([200, 1600, 3200, 6400, 12800, 25600])  
+
+    errors_eu = []
+    errors_rk = []
+    errors_cn = []
+    errors_ie = []
+
+    # ==== CALCULAR ERRORES GLOBALES PARA CADA N ====
+    for N in N_values:
+        _, _, e_eu = scheme_numerical_error(f, U0, t0, tf, N, Euler, 1)
+        _, _, e_rk = scheme_numerical_error(f, U0, t0, tf, N, RK4, 4)
+        _, _, e_cn = scheme_numerical_error(f, U0, t0, tf, N, CrankNicolson, 2)
+        _, _, e_ie = scheme_numerical_error(f, U0, t0, tf, N, inverse_euler, 1)
+
+        errors_eu.append(e_eu)
+        errors_rk.append(e_rk)
+        errors_cn.append(e_cn)
+        errors_ie.append(e_ie)
+
+    # ==== GRAFICAR log(||E||) vs N ====
+    plt.figure(figsize=(8,5))
+    plt.loglog(N_values, errors_eu, 'o-', label="Euler (p=1)")
+    plt.loglog(N_values, errors_rk, 'o-', label="RK4 (p=4)")
+    plt.loglog(N_values, errors_cn, 'o-', label="Crank–Nicolson (p=2)")
+    plt.loglog(N_values, errors_ie, 'o-', label="Inverse Euler (p=1)")
+
+    plt.xlabel("log(N)")
+    plt.ylabel("||E_h||")
+    plt.title("Convergencia: log(||E_h||) vs log(N)")
+    plt.grid(True, which="both", ls="--", alpha=0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
