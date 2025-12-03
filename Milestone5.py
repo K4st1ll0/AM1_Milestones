@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 # Creación de vectores 
 
-# U = [x_1 y_1 vx_1 vy_2
+# U = [x_1 y_1 vx_1 vy_1
 #      x_2 y_2 vx_2 vy_2
 #      ... ... ...  ...
 #      x_n y_n vx_n vy_n]
@@ -183,7 +183,7 @@ plt.scatter(r1[0,0], r1[0,1], s=40, color='tab:blue')
 plt.scatter(r2[0,0], r2[0,1], s=40, color='tab:orange')
 plt.scatter(r3[0,0], r3[0,1], s=40, color='tab:green')
 
-plt.title("Solución de Lagrange – 3 cuerpos iguales (órbitas circulares)")
+plt.title("Solución de 3 cuerpos iguales (órbitas circulares)")
 plt.xlabel("x")
 plt.ylabel("y")
 plt.grid(True)
