@@ -75,7 +75,7 @@ plt.gca().set_aspect('equal', 'box')
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
-# plt.show()
+plt.show()
 
 
 ### Estabilidad de los puntos de Lagrange ###
