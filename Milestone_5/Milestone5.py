@@ -1,6 +1,7 @@
-from numpy import array, diff, hstack, zeros_like, dot , sqrt, zeros
-from Milestone2 import integrate, RK4_step
-from matplotlib import pyplot as plt
+from numpy import array, sqrt
+import matplotlib.pyplot as plt
+from Modules.Dynamics import N_body_problem, pack_state
+from Modules.Temporal_schemes import integrate, RK4_step
 
 # Creación de vectores 
 
@@ -8,49 +9,6 @@ from matplotlib import pyplot as plt
 #      x_2 y_2 vx_2 vy_2
 #      ... ... ...  ...
 #      x_n y_n vx_n vy_n]
-
-def unpack_state(U, N):
-    """
-    Recibe:
-        U: vector de estado de tamaño 4N
-        N: número de cuerpos
-    Devuelve:
-        positions: array de shape (N, 2) con [x_i, y_i]
-        velocities: array de shape (N, 2) con [vx_i, vy_i]
-    """
-    
-    positions = U[:2*N].reshape(N, 2)  # Primeras 2N posiciones
-    velocities = U[2*N:].reshape(N, 2) # Últimas 2N velocidades
-
-    return positions, velocities
-
-
-def pack_state(positions, velocities):
-    """
-    Hace lo contrario que unpack_state, pasa de (N,2) + (N,2) a un vector de longitud 4N.
-    """
-    return hstack((positions.reshape(-1), velocities.reshape(-1)))
-
-
-def N_body_problem(U, masas, G=1, eps=1e-9):
-    N = len(masas)
-    positions, velocities = unpack_state(U, N)
-    accelerations = zeros_like(positions)
-
-    for i in range(N):
-        for j in range(N):
-            if i != j:
-                r_ij = positions[j] - positions[i]  
-                dist_sq = dot(r_ij, r_ij)        
-                dist = sqrt(dist_sq)           
-                dist3 = dist_sq*dist + eps**3       
-
-                accelerations[i] += G * masas[j] * r_ij / dist3
-
-    return pack_state(velocities, accelerations)
-
-
-
 
 
 ##### Problema de 3 cuerpos iguales #####

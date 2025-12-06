@@ -1,13 +1,5 @@
-from numpy import array, zeros, sqrt
-from matplotlib import pyplot as plt
-
-def f(U):
-    ''' Retorna el vector de derivadas '''
-    x, y, u, v = U
-    dudt = -x / ((x**2 + y**2)**(3/2))
-    dvdt = -y / ((x**2 + y**2)**(3/2))
-
-    return array([u, v, dudt, dvdt])
+from numpy import zeros, sqrt, array
+from scipy import linalg
 
 def Euler(f, U0, tf, t0 = 0, N = 10000):
     """
@@ -290,77 +282,61 @@ def integrate(f, U0, t0, tf, N, method):
         U[n+1, :] = method(f, U[n, :], dt)
     
     return U
+
+
+def LeapFrog_step(f, U, dt):
+    x = U[0]
+    v = U[1]
+
+    a = f(U)[1]   
+
+    v_half = v + 0.5*dt*a
+
+    x_new = x + dt*v_half
+
+    U_temp = array([x_new, v_half])
+    a_new = f(U_temp)[1]
+
+    v_new = v_half + 0.5*dt*a_new
+
+    return array([x_new, v_new])
+
+
+def RK45(f, U_n, tf, t0=0, N=10000, tol=1e-6):
+    """
+    Método Runge-Kutta-Fehlberg 45
     
+    Recibe: 
+        f: derivada del sistema a resolver 
+        U_n: vector de variables
+        tf: tiempo final
+        t0: tiempo inicial
+        N: número de pasos
+        tol: tolerancia para el error
 
-###########################################################################
-#########################   Test funciones   ##############################
-###########################################################################
-
-if __name__ == "__main__":
-
-    #### Variables iniciales ####
-
-    x0 = 1
-    y0 = 0
-    u0 = 0 
-    v0 = 1
-
-    N = 10000
-
-    t0 = 0
-    tf = 20
-
-    U0 = array([x0, y0, u0, v0])
-
-    # Prueba función Euler
-
-    U_Euler = Euler(f, U0, tf, t0, N)
-
-    plt.figure(figsize=(7,4))
-    plt.plot(U_Euler[:,0], U_Euler[:,1])
-    plt.axis('equal')  
-    plt.title('Euler Explícito')
-    plt.show()
-
-    # Prueba función RK4
-
-    U_RK4 = RK4(f, U0, tf, t0, N)
-
-    plt.figure(figsize=(7,4))
-    plt.plot(U_RK4[:,0], U_RK4[:,1])
-    plt.axis('equal')  
-    plt.title('RUNGE-KUTTA 4')
-    plt.show()
-
-    # Prueba función Crank-Nicolson
-
-    U_cn = CrankNicolson(f, U0, tf, t0, N)
-
-    plt.figure(figsize=(7,4))
-    plt.plot(U_cn[:,0], U_cn[:,1])
-    plt.axis('equal')  
-    plt.title('Crank-Nicolson')
-    plt.show()
-
-    # Prueba función Inverse Euler
-
-    U_ie = inverse_euler(f, U0, tf, t0, N)
-
-    plt.figure(figsize=(7,4))
-    plt.plot(U_ie[:,0], U_ie[:,1]) 
-    plt.axis('equal')  
-    plt.title('Inverse Euler')
-    plt.show()
-
-        
-    # Prueba integrate
-
-    U_int = integrate(f, U0, t0, tf, N, method=CrankNicolson_step) # Cambiar método aquí
-
-    plt.figure(figsize=(7,4))
-    plt.plot(U_int[:,0], U_int[:,1])  
-    plt.axis('equal')  
-    plt.title('Integrate ')
-    plt.show()
+    Devuelve: 
+        U_n5: integración del sistema en el tiempo tf
     
-    pass
+    """
+    delta_t = (tf - t0) / N
+    h = delta_t/1000 
+    err = 2  # Inicialización del error para entrar al bucle
+
+    while err > 1:
+
+        k1 = f(U_n)
+        k2 = f(U_n + h*1/4*k1)
+        k3 = f(U_n + h*(3/32*k1 + 9/32*k2))
+        k4 = f(U_n + h*(1932/2197*k1 - 7200/2197*k2 + 7296/2197*k3))
+        k5 = f(U_n + h*(439/216*k1 - 8*k2 + 3680/513*k3 - 845/4104*k4))
+        k6 = f(U_n + h*(-8/27*k1 + 2*k2 - 3544/2565*k3 + 1859/4104*k4 - 11/40*k5))
+
+        U4_n1 = U_n + h*(25/216*k1 + 1408/2565*k3 + 2197/4104*k4 - 1/5*k5)
+        U5_n1 = U_n + h*(16/135*k1 + 6656/12825*k3 + 28561/56430*k4 - 9/50*k5 + 2/55*k6)
+
+        e_n1 = U5_n1 - U4_n1
+
+        err = linalg.norm(e_n1)/tol 
+        h = h*min(5, max(0.1, 0.9*err**(-1/5)))
+
+    return U5_n1
