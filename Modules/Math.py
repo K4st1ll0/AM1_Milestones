@@ -1,4 +1,5 @@
 from numpy import array, abs, linspace, meshgrid
+import numpy as np
 from matplotlib import pyplot as plt
 from scipy import linalg
 
@@ -96,3 +97,25 @@ def newton_raphson(f, U0, tol=1e-10):
         U_n = U_n1
 
     return U_n
+
+def analyze_eigval(eigvals, tol=1e-6):
+
+    Real = eigvals.real
+    Real[np.abs(Real) < tol] = 0 # Considero nulos todos los valores inferiores a la tolerancia
+
+    if np.any(Real > 0):
+        Estability = "Inestable"
+        return Estability
+    elif np.all(Real < 0):
+        Estability = "Asintóticamente estable"
+        return Estability
+    else:
+        Estability = "Estable"
+        return Estability
+    
+
+
+   
+
+
+   

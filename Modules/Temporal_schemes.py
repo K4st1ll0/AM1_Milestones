@@ -302,7 +302,7 @@ def LeapFrog_step(f, U, dt):
     return array([x_new, v_new])
 
 
-def RK45(f, U_n, tf, t0=0, N=10000, tol=1e-6):
+def RK45(f, U0, tf, t0=0, N=10000, tol=1e-6):
     """
     Método Runge-Kutta-Fehlberg 45
     
@@ -319,24 +319,37 @@ def RK45(f, U_n, tf, t0=0, N=10000, tol=1e-6):
     
     """
     delta_t = (tf - t0) / N
+
+    U_n = zeros((N+1, len(U0)))
+    U_n[0, :] = U0
+
+    U4_n1 = zeros((N+1, len(U0)))
+    U5_n1 = zeros((N+1, len(U0)))
+
     h = delta_t/1000 
-    err = 2  # Inicialización del error para entrar al bucle
 
-    while err > 1:
+    for n in range(N):
 
-        k1 = f(U_n)
-        k2 = f(U_n + h*1/4*k1)
-        k3 = f(U_n + h*(3/32*k1 + 9/32*k2))
-        k4 = f(U_n + h*(1932/2197*k1 - 7200/2197*k2 + 7296/2197*k3))
-        k5 = f(U_n + h*(439/216*k1 - 8*k2 + 3680/513*k3 - 845/4104*k4))
-        k6 = f(U_n + h*(-8/27*k1 + 2*k2 - 3544/2565*k3 + 1859/4104*k4 - 11/40*k5))
+        err = 2  # Inicialización del error para entrar al bucle
+        
+        while err > 1:
 
-        U4_n1 = U_n + h*(25/216*k1 + 1408/2565*k3 + 2197/4104*k4 - 1/5*k5)
-        U5_n1 = U_n + h*(16/135*k1 + 6656/12825*k3 + 28561/56430*k4 - 9/50*k5 + 2/55*k6)
+            k1 = f(U_n[n, :])
+            k2 = f(U_n[n, :] + h*1/4*k1)
+            k3 = f(U_n[n, :] + h*(3/32*k1 + 9/32*k2))
+            k4 = f(U_n[n, :] + h*(1932/2197*k1 - 7200/2197*k2 + 7296/2197*k3))
+            k5 = f(U_n[n, :] + h*(439/216*k1 - 8*k2 + 3680/513*k3 - 845/4104*k4))
+            k6 = f(U_n[n, :] + h*(-8/27*k1 + 2*k2 - 3544/2565*k3 + 1859/4104*k4 - 11/40*k5))
 
-        e_n1 = U5_n1 - U4_n1
+            U4_n1[n, :] = U_n[n, :] + h*(25/216*k1 + 1408/2565*k3 + 2197/4104*k4 - 1/5*k5)
+            U5_n1[n, :] = U_n[n, :] + h*(16/135*k1 + 6656/12825*k3 + 28561/56430*k4 - 9/50*k5 + 2/55*k6)
 
-        err = linalg.norm(e_n1)/tol 
-        h = h*min(5, max(0.1, 0.9*err**(-1/5)))
+            e_n1 = U5_n1[n, :] - U4_n1[n, :]
 
-    return U5_n1
+            err = linalg.norm(e_n1)/tol 
+            h = h*min(5, max(0.1, 0.9*err**(-1/5)))
+
+        U_n[n+1, :] = U5_n1[n, :]
+
+
+    return U_n

@@ -1,5 +1,6 @@
 from numpy import array, zeros_like, dot, hstack, sqrt
-from Modules.Math import newton_raphson
+import numpy as np
+from Modules.Math import newton_raphson, Jacobian, analyze_eigval
 
 
 def unpack_state(U, N):
@@ -65,3 +66,46 @@ def P_Lagrange_cr3bp(U0, mu):
 
 
     return P_lagrange
+
+
+def estability_cr3bp(mu, L_points):
+
+    P_L1, P_L2, P_L3, P_L4, P_L5 = L_points
+
+    U_L1 = np.zeros(6)
+    U_L2 = np.zeros(6)
+    U_L3 = np.zeros(6)
+    U_L4 = np.zeros(6)
+    U_L5 = np.zeros(6)
+
+    U_L1[:3] = P_L1
+    U_L2[:3] = P_L2
+    U_L3[:3] = P_L3
+    U_L4[:3] = P_L4
+    U_L5[:3] = P_L5
+
+    J_L1 = Jacobian(lambda U: cr3bp(U, mu), U_L1)
+    J_L2 = Jacobian(lambda U: cr3bp(U, mu), U_L2)
+    J_L3 = Jacobian(lambda U: cr3bp(U, mu), U_L3)
+    J_L4 = Jacobian(lambda U: cr3bp(U, mu), U_L4)
+    J_L5 = Jacobian(lambda U: cr3bp(U, mu), U_L5)
+
+    eigval_L1 = np.linalg.eigvals(J_L1)
+    eigval_L2 = np.linalg.eigvals(J_L2)
+    eigval_L3 = np.linalg.eigvals(J_L3)
+    eigval_L4 = np.linalg.eigvals(J_L4)
+    eigval_L5 = np.linalg.eigvals(J_L5)
+
+    E_L1 = analyze_eigval(eigval_L1)
+    E_L2 = analyze_eigval(eigval_L2)
+    E_L3 = analyze_eigval(eigval_L3)
+    E_L4 = analyze_eigval(eigval_L4)
+    E_L5 = analyze_eigval(eigval_L5)
+
+    print("Estabilidad L1:", E_L1)
+    print("Estabilidad L2:", E_L2)
+    print("Estabilidad L3:", E_L3)
+    print("Estabilidad L4:", E_L4)
+    print("Estabilidad L5:", E_L5)
+
+
